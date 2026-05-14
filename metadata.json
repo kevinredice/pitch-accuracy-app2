@@ -1,0 +1,8 @@
+{
+  "name": "Vocal Pitch Accuracy Analyzer",
+  "description": "A professional tool to test your singing accuracy against a major scale using real-time pitch detection.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
