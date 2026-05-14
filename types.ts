@@ -7,6 +7,7 @@ export interface PitchResult {
   expectedNote: string;
   expectedFreq: number;
   detectedFreq: number;
+  rawFrequencies: number[];
   note: string;
   centsOff: number;
   isAccurate: boolean;

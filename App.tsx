@@ -116,28 +116,28 @@ export default function App() {
   };
 
   const analyzeResults = () => {
-    const detectedFreqs = Array.from({ length: 8 }, (_, i) => {
+    const segments = Array.from({ length: 8 }, (_, i) => {
       const startTime = i * noteDuration;
       const endTime = (i + 1) * noteDuration;
-      const segmentSamples = recordingDataRef.current
-        .filter(d => d.timestamp >= startTime + 150 && d.timestamp <= endTime - 150);
-      
-      const segmentFreqs = segmentSamples.map(d => d.freq);
-      if (segmentFreqs.length < 10) return 0;
-      return getMedian(segmentFreqs);
+      const freqs = recordingDataRef.current
+        .filter(d => d.timestamp >= startTime + 150 && d.timestamp <= endTime - 150)
+        .map(d => d.freq);
+      return { freqs, median: freqs.length < 10 ? 0 : getMedian(freqs) };
     });
 
+    const detectedFreqs = segments.map(s => s.median);
     const targetTonic = findBestFitScale(detectedFreqs);
     const expectedScale = generateMajorScale(targetTonic);
-    
+
     const pitchResults: PitchResult[] = expectedScale.map((expected, i) => {
-      const medianFreq = detectedFreqs[i];
+      const medianFreq = segments[i].median;
       const cents = calculateCents(medianFreq, expected.freq);
       return {
         degree: expected.degree,
         expectedNote: expected.note,
         expectedFreq: expected.freq,
         detectedFreq: medianFreq,
+        rawFrequencies: segments[i].freqs,
         note: frequencyToNote(medianFreq),
         centsOff: cents,
         isAccurate: medianFreq > 0 && Math.abs(cents) <= 25
