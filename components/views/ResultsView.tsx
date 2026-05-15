@@ -143,7 +143,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart }) 
 
           {showLog && (
             <div className="px-4 pb-4 pt-3 space-y-1">
-              <p className="text-[9px] text-slate-400 font-medium mb-3 leading-relaxed">
+              <p className="text-xs text-slate-500 font-medium mb-3 leading-relaxed">
                 Raw Hz detections per note. ⚠ flags frequencies outside the typical singing voice range (65–1320 Hz), which may indicate background noise was picked up instead of your voice.
               </p>
 
@@ -161,20 +161,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart }) 
                     <div className="flex justify-between items-start gap-3">
                       <span className="text-[10px] font-black text-slate-500 pt-0.5 shrink-0">{r.degree.split(' ')[0]}</span>
                       <div className="flex-1 space-y-0.5 text-right">
-                        <div className="flex justify-end gap-3 text-[9px] font-mono">
-                          <span className="text-slate-300">exp {r.expectedFreq.toFixed(1)} Hz</span>
-                          <span className={missed ? 'text-slate-300' : outOfRange ? 'text-amber-500 font-bold' : 'text-slate-500'}>
+                        <div className="flex justify-end gap-3 text-xs font-mono">
+                          <span className="text-slate-400">exp {r.expectedFreq.toFixed(1)} Hz</span>
+                          <span className={missed ? 'text-slate-400' : outOfRange ? 'text-amber-500 font-bold' : 'text-slate-600'}>
                             got {missed ? '—' : `${r.detectedFreq.toFixed(1)} Hz`}
                           </span>
                         </div>
                         {!missed && raw.length > 0 && (
-                          <p className="text-[9px] font-mono text-slate-300">
+                          <p className="text-xs font-mono text-slate-400">
                             range {minFreq.toFixed(0)}–{maxFreq.toFixed(0)} Hz
-                            {isUnstable && <span className="ml-1 text-indigo-400"> · unstable</span>}
+                            {isUnstable && <span className="ml-1 text-indigo-500"> · unstable</span>}
                           </p>
                         )}
                         {outOfRange && (
-                          <p className="text-[9px] text-amber-500 font-bold">⚠ possible non-voice sound</p>
+                          <p className="text-xs text-amber-500 font-bold">⚠ possible non-voice sound</p>
                         )}
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart }) 
               })}
 
               <div className="mt-3 p-3 rounded-xl bg-indigo-50/60 border border-indigo-100/50">
-                <p className="text-[9px] text-indigo-500 font-medium leading-relaxed">
+                <p className="text-xs text-indigo-500 font-medium leading-relaxed">
                   <span className="font-black">Typical ranges —</span> Bass ~80–330 Hz · Tenor ~130–520 Hz · Alto ~170–700 Hz · Soprano ~250–1050 Hz
                 </p>
               </div>
