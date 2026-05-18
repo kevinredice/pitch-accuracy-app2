@@ -1,11 +1,11 @@
 
 import React, { useState, useRef } from 'react';
-import { AppState, AnalysisSummary, PitchResult } from './types';
-import { 
-  frequencyToNote, 
-  generateMajorScale, 
-  detectPitch, 
-  getMedian, 
+import { AppState, AnalysisSummary, PitchResult, LeaderboardEntry } from './types';
+import {
+  frequencyToNote,
+  generateMajorScale,
+  detectPitch,
+  getMedian,
   calculateCents,
   findBestFitScale
 } from './utils/pitch';
@@ -14,11 +14,23 @@ import {
 import { StartView } from './components/views/StartView';
 import { SingingView } from './components/views/SingingView';
 import { ResultsView } from './components/views/ResultsView';
+import { LeaderboardView } from './components/views/LeaderboardView';
+
+const LEADERBOARD_KEY = 'pitch-leaderboard';
+
+function loadEntries(): LeaderboardEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
 
 export default function App() {
   const [state, setState] = useState<AppState>('START');
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisSummary | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(loadEntries);
   
   const [timer, setTimer] = useState(0);
   const [prepProgress, setPrepProgress] = useState(100);
@@ -155,6 +167,21 @@ export default function App() {
     stopAudio();
   };
 
+  const handleSubmitToLeaderboard = (name: string) => {
+    if (!results) return;
+    const entry: LeaderboardEntry = {
+      name: name.trim(),
+      score: Math.round(results.accuracyScore * 100),
+      scalesCompleted: results.accurateNotes.length,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      isUser: true,
+    };
+    const updated = [...leaderboard, entry].sort((a, b) => b.score - a.score);
+    setLeaderboard(updated);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(updated.map(e => ({ ...e, isUser: false }))));
+    setState('LEADERBOARD');
+  };
+
   const handleRestart = () => {
     stopAudio();
     setState('START');
@@ -184,7 +211,17 @@ export default function App() {
       )}
 
       {state === 'RESULTS' && results && (
-        <ResultsView results={results} onRestart={handleRestart} />
+        <ResultsView
+          results={results}
+          onRestart={handleRestart}
+          onSubmitLeaderboard={handleSubmitToLeaderboard}
+          onViewLeaderboard={() => setState('LEADERBOARD')}
+          hasLeaderboardEntries={leaderboard.length > 0}
+        />
+      )}
+
+      {state === 'LEADERBOARD' && (
+        <LeaderboardView entries={leaderboard} onRestart={handleRestart} />
       )}
     </>
   );

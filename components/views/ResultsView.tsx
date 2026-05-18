@@ -6,6 +6,9 @@ import { AnalysisSummary } from '../../types';
 interface ResultsViewProps {
   results: AnalysisSummary;
   onRestart: () => void;
+  onSubmitLeaderboard: (name: string) => void;
+  onViewLeaderboard: () => void;
+  hasLeaderboardEntries: boolean;
 }
 
 const VOICE_MIN = 65;
@@ -48,8 +51,10 @@ function CentsBar({ cents }: { cents: number }) {
   );
 }
 
-export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart }) => {
+export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart, onSubmitLeaderboard, onViewLeaderboard, hasLeaderboardEntries }) => {
   const [showLog, setShowLog] = useState(false);
+  const [name, setName] = useState('');
+  const [submitted, setSubmitted] = useState(false);
   const score = Math.round(results.accuracyScore * 100);
   const isHigh = score >= 75;
   const isMid = score > 30 && score < 75;
@@ -191,11 +196,46 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results, onRestart }) 
           )}
         </div>
 
-        {/* Action */}
-        <div className="mt-auto pt-2">
-          <button onClick={onRestart} className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-lg btn-active text-base">
-            New Test
-          </button>
+        {/* Leaderboard submission */}
+        <div className="space-y-3 mt-auto pt-2">
+          {!submitted ? (
+            <>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Add to Leaderboard</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && name.trim()) { onSubmitLeaderboard(name); setSubmitted(true); } }}
+                  placeholder="Your name"
+                  maxLength={20}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-indigo-300 focus:bg-white transition-colors"
+                />
+                <button
+                  onClick={() => { if (name.trim()) { onSubmitLeaderboard(name); setSubmitted(true); } }}
+                  disabled={!name.trim()}
+                  className="bg-indigo-600 text-white font-black px-5 py-3 rounded-xl btn-active disabled:opacity-30 text-sm transition-opacity"
+                >
+                  Submit
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+              <span className="text-xs text-emerald-600 font-black">Added to leaderboard!</span>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button onClick={onRestart} className="flex-1 bg-slate-900 text-white font-black py-4 rounded-2xl btn-active text-sm">
+              New Test
+            </button>
+            {(hasLeaderboardEntries || submitted) && (
+              <button onClick={onViewLeaderboard} className="flex-1 bg-slate-50 border border-slate-200 text-slate-600 font-black py-4 rounded-2xl btn-active text-sm">
+                Leaderboard
+              </button>
+            )}
+          </div>
         </div>
 
       </div>
